@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sondaggio</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      max-width: 680px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .card-header {
+      background: linear-gradient(135deg, #003366 0%, #005baa 100%);
+      color: #fff;
+      padding: 36px 40px 28px;
+    }
+    .card-header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+    .card-header p  { font-size: 0.92rem; opacity: 0.85; line-height: 1.5; }
+    .card-body { padding: 36px 40px; }
+    .field-group { margin-bottom: 28px; }
+    label {
+      display: block; font-size: 0.88rem; font-weight: 600;
+      color: #374151; margin-bottom: 8px;
+    }
+    label .required { color: #e53e3e; margin-left: 3px; }
+    input[type="text"], input[type="email"], textarea {
+      width: 100%; border: 1.5px solid #d1d5db; border-radius: 8px;
+      padding: 12px 14px; font-size: 0.95rem; font-family: inherit;
+      color: #111827; background: #fafafa; resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus, input[type="email"]:focus, textarea:focus {
+      outline: none; border-color: #005baa;
+      box-shadow: 0 0 0 3px rgba(0,91,170,0.12); background: #fff;
+    }
+    textarea { min-height: 110px; }
+    .btn-submit {
+      width: 100%; padding: 14px; background: #005baa; color: #fff;
+      font-size: 1rem; font-weight: 600; border: none; border-radius: 8px;
+      cursor: pointer; transition: background 0.2s; margin-top: 8px;
+    }
+    .btn-submit:hover { background: #004a8f; }
+    .card-footer {
+      background: #f9fafb; border-top: 1px solid #e5e7eb;
+      padding: 16px 40px; font-size: 0.78rem; color: #9ca3af; text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h1>📋 Titolo del Sondaggio</h1>
+    <p>Descrizione del sondaggio. Spiega agli utenti lo scopo e come verranno usate le risposte.</p>
+  </div>
+
+  <div class="card-body">
+
+    <!--
+    ═══════════════════════════════════════════════════════════
+     ⚙️  CONFIGURAZIONE: sostituisci l'email nell'action qui sotto
+         Es: action="https://formsubmit.co/matteo.antonazzo@siae.it"
+    ═══════════════════════════════════════════════════════════
+    -->
+    <form
+      action="https://formsubmit.co/matteo.antonazzo@siae.it"
+      method="POST"
+    >
+
+      <!-- Campi di configurazione Formsubmit (non visibili all'utente) -->
+      <input type="hidden" name="_subject"  value="[Sondaggio] Nuova risposta" />
+      <input type="hidden" name="_captcha"  value="false" />
+      <input type="hidden" name="_template" value="table" />
+      <!-- Opzionale: dopo l'invio reindirizza a una pagina personalizzata -->
+      <!-- <input type="hidden" name="_next" value="https://tuo-sito/grazie.html" /> -->
+
+      <div class="field-group">
+        <label for="nome">Nome e cognome <span class="required">*</span></label>
+        <input type="text" id="nome" name="Nome" placeholder="Es. Mario Rossi" required />
+      </div>
+
+      <div class="field-group">
+        <label for="email_risposta">Email</label>
+        <input type="email" id="email_risposta" name="Email" placeholder="Es. mario.rossi@esempio.it" />
+      </div>
+
+      <div class="field-group">
+        <label for="domanda1">Domanda 1 <span class="required">*</span></label>
+        <textarea id="domanda1" name="Domanda_1" placeholder="Scrivi qui la tua risposta…" required></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="domanda2">Domanda 2 <span class="required">*</span></label>
+        <textarea id="domanda2" name="Domanda_2" placeholder="Scrivi qui la tua risposta…" required></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="domanda3">Domanda 3</label>
+        <textarea id="domanda3" name="Domanda_3" placeholder="Scrivi qui la tua risposta…"></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit">Invia le risposte</button>
+    </form>
+
+  </div>
+
+  <div class="card-footer">Le risposte vengono salvate automaticamente.</div>
+</div>
+
+</body>
+</html>
