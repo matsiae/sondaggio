@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAE — Grazie</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #0d1b2a 55%, #1a237e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 64px 48px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .siae-badge {
+            display: inline-block;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #2196F3;
+            letter-spacing: 6px;
+            margin-bottom: 6px;
+        }
+
+        .header-sub {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 48px;
+        }
+
+        .check-circle {
+            width: 80px;
+            height: 80px;
+            background: rgba(76,175,80,0.12);
+            border: 2px solid rgba(76,175,80,0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            animation: pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+        }
+
+        .check-circle svg {
+            width: 36px;
+            height: 36px;
+            stroke: #66BB6A;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @keyframes pop {
+            0%   { transform: scale(0.4); opacity: 0; }
+            80%  { transform: scale(1.08); }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        .accent-line {
+            height: 1px;
+            background: rgba(255,255,255,0.08);
+            margin: 0 auto 36px;
+            width: 80px;
+        }
+
+        .info-box {
+            background: rgba(33,150,243,0.07);
+            border: 1px solid rgba(33,150,243,0.2);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 36px;
+            text-align: left;
+        }
+
+        .info-box p {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.7;
+        }
+
+        .info-box strong {
+            color: rgba(255,255,255,0.85);
+            font-weight: 500;
+        }
+
+        .btn-close {
+            display: inline-block;
+            padding: 13px 36px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.6);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-close:hover {
+            border-color: rgba(255,255,255,0.45);
+            color: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .footer {
+            margin-top: 36px;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.18);
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+
+    <div class="siae-badge">SIAE</div>
+    <div class="header-sub">Società Italiana degli Autori ed Editori</div>
+
+    <div class="check-circle">
+        <svg viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+    </div>
+
+    <h1>Risposta ricevuta</h1>
+    <p class="subtitle">
+        Le tue risposte sono state registrate correttamente.<br/>
+        Grazie per aver partecipato.
+    </p>
+
+    <div class="accent-line"></div>
+
+    <div class="info-box">
+        <p>
+            <strong>Cosa succede ora?</strong><br/>
+            I dati vengono raccolti e analizzati internamente.
+            Non è necessaria nessun'altra azione da parte tua.
+        </p>
+    </div>
+
+    <button class="btn-close" onclick="window.close()">Chiudi la pagina</button>
+
+    <div class="footer">SIAE — uso interno &nbsp;·&nbsp; i tuoi dati sono al sicuro</div>
+</div>
+</body>
+</html>
