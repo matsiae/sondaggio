@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIAE — Intervista Pre-work Design Sprint RdZ</title>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-light: #132040;
+    --blue: #00B5FA;
+    --blue-dim: rgba(0,181,250,0.15);
+    --blue-glow: rgba(0,181,250,0.3);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.15);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.15);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --gray: #94a3b8;
+    --gray-light: #cbd5e1;
+    --white: #f1f5f9;
+    --text: #e2e8f0;
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(160deg, #050d1a 0%, var(--navy) 40%, #0d1f3c 100%);
+    color: var(--text); min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, var(--navy-light), #0d2240);
+    border-bottom: 1px solid rgba(0,181,250,0.2);
+    padding: 20px 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .header .logo {
+    width: 48px; height: 48px; background: var(--blue);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; color: var(--navy);
+  }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .header p { font-size: 13px; color: var(--gray); margin-top: 2px; }
+  .container { max-width: 780px; margin: 0 auto; padding: 28px 20px 100px; }
+  .phase-bar { display: flex; gap: 4px; margin-bottom: 28px; }
+  .phase-step { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,0.08); transition:background 0.4s; }
+  .phase-step.active { background: var(--blue); }
+  .phase-step.done { background: var(--green); }
+  .card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 18px; transition: all 0.3s;
+  }
+  .card:hover { border-color: rgba(0,181,250,0.15); }
+  .card h2 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .card .subtitle { font-size: 13px; color: var(--gray); margin-bottom: 18px; }
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .profile-btn {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 18px 14px; cursor: pointer;
+    transition: all 0.2s; text-align: center;
+  }
+  .profile-btn:hover { border-color: var(--blue); background: var(--blue-dim); }
+  .profile-btn.selected { border-color: var(--blue); background: var(--blue-dim); box-shadow: 0 0 20px rgba(0,181,250,0.1); }
+  .profile-btn .p-icon { font-size: 28px; margin-bottom: 8px; }
+  .profile-btn .label { font-size: 14px; font-weight: 600; color: var(--white); }
+  .profile-btn .desc { font-size: 11px; color: var(--gray); margin-top: 4px; line-height: 1.4; }
+  .field { margin-bottom: 14px; }
+  .field label { display:block; font-size:13px; font-weight:500; color:var(--gray-light); margin-bottom:5px; }
+  .field select, .field input {
+    width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    border-radius:8px; padding:10px 14px; color:var(--white); font-size:14px; outline:none;
+  }
+  .field select:focus, .field input:focus { border-color: var(--blue); }
+  .field select option { background: var(--navy); }
+
+  /* Progress ring */
+  .progress-ring-wrap { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .progress-ring { width:56px; height:56px; position:relative; }
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring .bg { stroke: rgba(255,255,255,0.06); }
+  .progress-ring .fg { stroke: var(--blue); transition: stroke-dashoffset 0.5s ease; }
+  .progress-ring .count {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:14px; font-weight:700; color:var(--white);
+  }
+  .progress-info .pi-title { font-size:14px; font-weight:600; color:var(--white); }
+  .progress-info .pi-sub { font-size:12px; color:var(--gray); margin-top:2px; }
+
+  /* Topic chips */
+  .topic-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px; }
+  .topic-chip {
+    font-size:11px; padding:4px 10px; border-radius:20px; font-weight:500;
+    border: 1px solid transparent;
+  }
+  .topic-chip.done { background:var(--green-dim); color:var(--green); border-color:rgba(34,197,94,0.2); }
+  .topic-chip.partial { background:var(--amber-dim); color:var(--amber); border-color:rgba(245,158,11,0.2); }
+  .topic-chip.pending { background:rgba(255,255,255,0.04); color:var(--gray); border-color:rgba(255,255,255,0.08); }
+  .topic-chip.current { background:var(--blue-dim); color:var(--blue); border-color:rgba(0,181,250,0.3); }
+
+  /* Question */
+  .q-area {
+    background: linear-gradient(135deg, rgba(0,181,250,0.06), rgba(0,181,250,0.02));
+    border: 1px solid rgba(0,181,250,0.15); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 14px;
+  }
+  .q-topic { font-size:11px; color:var(--blue); font-weight:600; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
+  .q-num { font-size:12px; color:var(--gray); margin-bottom:8px; }
+  .q-text { font-size:16px; font-weight:500; line-height:1.5; }
+
+  /* Probe */
+  .probe-box {
+    background: var(--amber-dim); border:1px solid rgba(245,158,11,0.2);
+    border-radius:8px; padding:12px 14px; margin-bottom:14px;
+    font-size:13px; color:var(--amber); display:none;
+  }
+  .probe-box.visible { display:block; }
+  .probe-box .probe-label { font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px; }
+
+  .answer-box {
+    width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px; padding:14px 16px; color:var(--white); font-size:14px;
+    font-family:inherit; line-height:1.6; min-height:100px; resize:vertical; outline:none;
+  }
+  .answer-box:focus { border-color: var(--blue); }
+  .answer-box::placeholder { color: rgba(255,255,255,0.2); }
+  .answer-meta { display:flex; justify-content:space-between; margin-top:6px; font-size:12px; color:var(--gray); }
+  .word-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+  .word-dot.low { background:var(--red); }
+  .word-dot.ok { background:var(--amber); }
+  .word-dot.good { background:var(--green); }
+
+  .btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:11px 20px; border-radius:10px; font-size:13px; font-weight:600;
+    cursor:pointer; border:none; transition:all 0.2s;
+  }
+  .btn-primary { background:var(--blue); color:var(--navy); }
+  .btn-primary:hover { filter:brightness(1.1); transform:translateY(-1px); }
+  .btn-primary:disabled { opacity:0.35; cursor:not-allowed; transform:none; }
+  .btn-secondary { background:rgba(255,255,255,0.08); color:var(--white); border:1px solid rgba(255,255,255,0.12); }
+  .btn-secondary:hover { background:rgba(255,255,255,0.12); }
+  .btn-ghost { background:transparent; color:var(--gray); padding:11px 12px; }
+  .btn-ghost:hover { color:var(--white); }
+  .btn-row { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+
+  .section { display:none; }
+  .section.active { display:block; }
+
+  .summary-block {
+    background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px; padding:18px; margin-bottom:14px;
+    white-space:pre-wrap; font-size:13px; line-height:1.7;
+    font-family:'SF Mono','Fira Code',monospace;
+    max-height:500px; overflow-y:auto;
+  }
+  .completion-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--green-dim); color:var(--green);
+    padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; margin-bottom:18px;
+  }
+  .intro-text { font-size:14px; line-height:1.7; color:var(--gray-light); margin-bottom:20px; }
+  .intro-text strong { color:var(--white); }
+
+  @media (max-width:600px) {
+    .profile-grid { grid-template-columns:1fr; }
+    .header { padding:16px; }
+    .container { padding:18px 14px 80px; }
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn 0.35s ease-out; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">S</div>
+  <div>
+    <h1>Intervista Pre-work — Design Sprint RdZ</h1>
+    <p>Raccolta evidenze per il workshop di definizione del ruolo Responsabile di Zona</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="phase-bar"><div class="phase-step" id="ps1"></div><div class="phase-step" id="ps2"></div><div class="phase-step" id="ps3"></div></div>
+
+  <!-- SETUP -->
+  <div class="section active" id="sec-setup">
+    <div class="card fade-in">
+      <h2>Benvenuto</h2>
+      <p class="intro-text">
+        Questa intervista fa parte della preparazione al <strong>Design Sprint per la definizione del ruolo di Responsabile di Zona SIAE</strong>.<br><br>
+        Ci vorranno circa <strong>15-20 minuti</strong>. Non ci sono risposte giuste o sbagliate: ci servono le tue esperienze concrete e il tuo punto di vista sul campo.<br><br>
+        Le risposte saranno anonimizzate e usate esclusivamente per preparare il workshop.
+      </p>
+    </div>
+    <div class="card fade-in">
+      <h2>Qual e il tuo ruolo?</h2>
+      <p class="subtitle">Seleziona il profilo che ti descrive</p>
+      <div class="profile-grid" id="profileGrid">
+        <div class="profile-btn" data-profile="rdz">
+          <div class="p-icon">&#128188;</div>
+          <div class="label">Responsabile di Zona</div>
+          <div class="desc">Il ruolo su cui stiamo lavorando</div>
+        </div>
+        <div class="profile-btn" data-profile="mandatario">
+          <div class="p-icon">&#127970;</div>
+          <div class="label">Mandatario</div>
+          <div class="desc">Operi sul territorio nella circoscrizione</div>
+        </div>
+        <div class="profile-btn" data-profile="am">
+          <div class="p-icon">&#128200;</div>
+          <div class="label">Area Manager</div>
+          <div class="desc">Coordini i Responsabili di Zona</div>
+        </div>
+        <div class="profile-btn" data-profile="dda">
+          <div class="p-icon">&#127891;</div>
+          <div class="label">Direttore d'Area</div>
+          <div class="desc">Governance e supervisione della rete</div>
+        </div>
+      </div>
+    </div>
+    <div class="card fade-in" id="setupDetails" style="display:none">
+      <h2>Qualche dato su di te</h2>
+      <p class="subtitle">Serve per contestualizzare le risposte — tutto anonimo</p>
+      <div class="field">
+        <label>Area geografica</label>
+        <select id="inArea"><option value="">Seleziona...</option>
+          <option>Nord-Ovest</option><option>Nord-Est</option><option>Centro</option><option>Sud</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Anzianita nel ruolo attuale</label>
+        <select id="inAnz"><option value="">Seleziona...</option>
+          <option value="<3 anni">Meno di 3 anni</option>
+          <option value="3-6 anni">Da 3 a 6 anni</option>
+          <option value="6-10 anni">Da 6 a 10 anni</option>
+          <option value=">10 anni">Oltre 10 anni</option>
+        </select>
+      </div>
+      <div class="field" id="fldMandatari" style="display:none">
+        <label>Quanti mandatari coordini?</label>
+        <input type="text" id="inMandatari" placeholder="es. 8">
+      </div>
+      <div class="field" id="fldReggenze" style="display:none">
+        <label>Ci sono circoscrizioni in reggenza nella tua zona?</label>
+        <select id="inReggenze"><option value="">Seleziona...</option>
+          <option value="no">No, nessuna</option>
+          <option value="1">Si, 1</option>
+          <option value="2">Si, 2</option>
+          <option value="3+">Si, 3 o piu</option>
+        </select>
+      </div>
+      <div class="field" id="fldReggenzaMand" style="display:none">
+        <label>Sei titolare di una reggenza in questo momento?</label>
+        <select id="inReggenzaMand"><option value="">Seleziona...</option>
+          <option value="no">No</option>
+          <option value="si">Si</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnStart" disabled>Iniziamo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERVIEW -->
+  <div class="section" id="sec-interview">
+    <div class="progress-ring-wrap">
+      <div class="progress-ring">
+        <svg width="56" height="56"><circle class="bg" cx="28" cy="28" r="24" fill="none" stroke-width="4"/><circle class="fg" id="ringFg" cx="28" cy="28" r="24" fill="none" stroke-width="4" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round"/></svg>
+        <div class="count" id="ringCount">0/0</div>
+      </div>
+      <div class="progress-info">
+        <div class="pi-title" id="piTitle">Domanda 1</div>
+        <div class="pi-sub" id="piSub"></div>
+      </div>
+    </div>
+    <div class="topic-chips" id="topicChips"></div>
+
+    <div class="q-area fade-in" id="qArea">
+      <div class="q-topic" id="qTopic"></div>
+      <div class="q-num" id="qNum"></div>
+      <div class="q-text" id="qText"></div>
+    </div>
+
+    <div class="probe-box" id="probeBox">
+      <div class="probe-label">Suggerimento</div>
+      <div id="probeText"></div>
+    </div>
+
+    <textarea class="answer-box" id="answerBox" placeholder="Scrivi la tua risposta qui..."></textarea>
+    <div class="answer-meta">
+      <div><span class="word-dot" id="wDot"></span><span id="wCount">0 parole</span></div>
+      <span id="wHint"></span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="btnBack" style="display:none">&#8592; Indietro</button>
+      <button class="btn btn-primary" id="btnNext" disabled>Avanti &#8594;</button>
+      <button class="btn btn-secondary" id="btnProbe">&#128161; Aiutami a rispondere</button>
+      <button class="btn btn-ghost" id="btnSkip">Salta, ci torno dopo</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="section" id="sec-results">
+    <div class="completion-badge fade-in">&#10003; Intervista completata</div>
+    <div class="card fade-in">
+      <h2>Grazie!</h2>
+      <p class="intro-text">Le tue risposte sono pronte per essere esportate. Il facilitatore le usera per preparare il workshop.<br><br>Clicca su uno dei pulsanti sotto per salvare le risposte.</p>
+    </div>
+    <div class="card fade-in">
+      <h2>Riepilogo risposte</h2>
+      <div class="summary-block" id="summaryOut"></div>
+    </div>
+    <div class="card fade-in" style="border-color:rgba(0,181,250,0.3); background:rgba(0,181,250,0.04)">
+      <h2>&#128228; Invia al facilitatore</h2>
+      <p class="subtitle" style="margin-bottom:16px">Clicca per inviare le risposte direttamente. Verrai reindirizzato alla pagina di conferma.</p>
+      <button class="btn btn-primary" id="btnInvia" style="font-size:15px; padding:14px 28px; width:100%">Invia le risposte &#8594;</button>
+    </div>
+    <div class="card fade-in">
+      <h2>Esporta in locale</h2>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btnJSON">Esporta JSON</button>
+        <button class="btn btn-secondary" id="btnTXT">Esporta testo</button>
+        <button class="btn btn-secondary" id="btnCopy">Copia tutto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// QUESTION BANK — domande diverse per ogni profilo
+// ═══════════════════════════════════════════════════════
+const PROFILES = {
+rdz: {
+  label: 'Responsabile di Zona',
+  topics: ['Attivita quotidiane','Gestione del tempo','Rapporto con i mandatari','Dati e strumenti','Confine con l\'Area Manager','Coerenza del ruolo','Difficolta e blocchi','Miglioramenti'],
+  questions: [
+    // TOPIC 0: Attivita quotidiane
+    { topic:0, q:'Quali sono le prime 3 cose che fai quando inizi la giornata lavorativa?', probes:['E il pomeriggio cosa fai di solito?','Cambia qualcosa tra lunedi e venerdi?','C\'e qualcosa che fai tutti i giorni senza eccezioni?'] },
+    { topic:0, q:'Quante volte a settimana parli con i mandatari della tua zona? Come li contatti?', probes:['Telefono, email, di persona?','Hai un calendario fisso o chiami quando serve?','C\'e qualcuno che senti piu spesso di altri?'] },
+    // TOPIC 1: Gestione del tempo
+    { topic:1, q:'Quale attivita ti occupa piu tempo durante la settimana?', probes:['Quanto tempo in percentuale diresti?','E un\'attivita che ti sembra utile o la faresti diversamente?','Potresti delegarla o automatizzarla?'] },
+    { topic:1, q:'C\'e qualcosa che vorresti fare ma non riesci perche non hai tempo?', probes:['Quanto spesso succede?','Cosa sacrifichi per far spazio?','Se avessi 2 ore in piu a settimana, cosa faresti?'] },
+    // TOPIC 2: Rapporto con i mandatari
+    { topic:2, q:'Come capisci se un mandatario sta lavorando bene o ha bisogno di aiuto?', probes:['Guardi dei numeri specifici? Quali?','Te ne accorgi dai dati o dalle conversazioni?','Quanto tempo passa prima che intervieni?'] },
+    { topic:2, q:'Raccontami cosa fai quando un mandatario ha risultati in calo.', probes:['Lo chiami subito o aspetti?','Che tipo di supporto gli dai?','Hai mai dovuto segnalarlo all\'Area Manager?'] },
+    { topic:2, q:'I mandatari sono tutti uguali o li gestisci in modo diverso? Fammi un esempio.', probes:['Cosa cambia tra uno esperto e uno nuovo?','C\'e qualcuno che richiede piu attenzione?','Come decidi quanto tempo dedicare a ciascuno?'] },
+    // TOPIC 3: Dati e strumenti
+    { topic:3, q:'Quali dati guardi piu spesso per il tuo lavoro? (compensi, permessi, incasso...)', probes:['Dove li trovi? Dashboard, Excel, email?','Sono aggiornati? Ogni quanto?','Ti fidi dei numeri che vedi?'] },
+    { topic:3, q:'Usi qualche strumento tuo (fogli Excel, appunti, altro) oltre a quelli aziendali?', probes:['Perche te lo sei costruito?','Cosa ci metti dentro?','Se sparisse domani, cosa perderesti?'] },
+    // TOPIC 4: Confine con l'AM
+    { topic:4, q:'Quali decisioni prendi da solo e quali porti all\'Area Manager?', probes:['Mi fai un esempio di una decisione che hai preso da solo?','E una che hai dovuto portare all\'AM?','Come decidi quando e il momento di coinvolgerlo?'] },
+    { topic:4, q:'Quanto spesso ti senti con il tuo Area Manager e di cosa parlate?', probes:['E un appuntamento fisso o a bisogno?','Chi chiama chi di solito?','C\'e qualcosa che vorresti discutere e non riesci?'] },
+    // TOPIC 5: Coerenza del ruolo
+    { topic:5, q:'Delle cose che fai oggi, quali pensi siano davvero parte del tuo ruolo?', probes:['Ce n\'e qualcuna che non dovrebbe essere tua?','Chi dovrebbe farla secondo te?','Da quanto tempo la fai?'] },
+    { topic:5, q:'C\'e qualcosa che oggi non fai ma secondo te dovresti fare come RdZ?', probes:['Perche non la fai? Manca tempo, permesso, strumenti?','Chi la fa oggi al posto tuo?','Se iniziassi a farla, cosa cambierebbe?'] },
+    // R-NEW-1 - CONDITIONAL: only if seniority is NOT "<3 anni"
+    { topic:5, q:'Rispetto a quando hai iniziato questo ruolo, il tuo lavoro quotidiano negli ultimi 12 mesi e cambiato? In cosa?', probes:['Fai cose oggi che 2 anni fa non facevi?','C\'e qualcosa che facevi prima e ora non fai piu?','Questo cambiamento ti e stato chiesto o e venuto naturale?'], condition:'seniority_gt_3' },
+    // R-NEW-2
+    { topic:5, q:'C\'e qualcosa nel lavoro del RdZ di oggi che richiede competenze diverse da quelle che servivano all\'inizio?', probes:['Quali ad esempio?','Le hai sviluppate da solo o ti hanno formato?','Ce ne sono alcune che senti di non avere ancora?'] },
+    // TOPIC 6: Difficolta e blocchi
+    { topic:6, q:'Qual e la situazione piu difficile che hai gestito nell\'ultimo mese?', probes:['Come l\'hai risolta?','Hai chiesto aiuto a qualcuno?','Cosa avresti voluto avere per gestirla meglio?'] },
+    { topic:6, q:'C\'e qualcosa nel tuo ruolo che ti crea confusione o non ti e chiaro?', probes:['Hai provato a chiedere chiarimenti? A chi?','Questa confusione ha impatto sul tuo lavoro?','Cosa ti aiuterebbe a chiarirla?'] },
+    { topic:6, q:'Nella tua zona ci sono circoscrizioni in reggenza in questo momento? Come impatta sul tuo lavoro?', probes:['Quanto tempo in piu ti richiedono rispetto a una circoscrizione con un mandatario titolare?','Le reggenze nella tua zona sono temporanee o durano da molto?','Cosa cambia nel tuo modo di seguire il mandatario che ha la reggenza?'] },
+    // TOPIC 7: Miglioramenti
+    { topic:7, q:'Se potessi cambiare una cosa sola nel tuo lavoro, quale sarebbe?', probes:['Perche proprio quella?','A chi gioverebbe di piu questo cambiamento?','Cosa servirebbe per farlo succedere?'] },
+    { topic:7, q:'C\'e uno strumento, un dato o un supporto che se lo avessi cambierebbe il tuo lavoro?', probes:['Come lo useresti nella pratica?','Hai mai provato a chiederlo?','Cosa risolverebbe esattamente?'] },
+  ]
+},
+mandatario: {
+  label: 'Mandatario',
+  topics: ['Come vedi il RdZ','Cosa ti serve dal RdZ','Interazioni concrete','Decisioni e autonomia','Quando funziona','Quando non funziona','Il rapporto ideale','La tua circoscrizione'],
+  questions: [
+    // TOPIC 0: Come vedi il RdZ
+    { topic:0, q:'Se dovessi spiegare a un collega nuovo cosa fa il tuo Responsabile di Zona, cosa diresti?', probes:['Ti capita di chiamarlo tu quando hai bisogno, o e lui che si fa vivo?','Cosa fa che ti aiuta davvero?','Cosa fa che non ti serve?'] },
+    { topic:0, q:'Secondo te, il RdZ e piu un supporto per te o un controllore? Perche?', probes:['E sempre stato cosi o e cambiato?','Come ti fa sentire questa cosa?','Cosa preferirebbe secondo te?'] },
+    // TOPIC 1: Cosa ti serve
+    { topic:1, q:'Nell\'ultimo mese, per cosa hai avuto bisogno del tuo RdZ?', probes:['Ti ha aiutato? Come?','Se non c\'era il RdZ, come avresti fatto?','Quanto tempo ci ha messo a risponderti?'] },
+    { topic:1, q:'C\'e qualcosa che oggi fai da solo e che vorresti ti aiutasse il RdZ?', probes:['Glielo hai mai chiesto?','Perche pensi che dovrebbe farlo lui?','Quanto tempo ti libererebbe?'] },
+    // TOPIC 2: Interazioni concrete
+    { topic:2, q:'Quanto spesso senti il tuo RdZ? E di cosa parlate di solito?', probes:['Ti chiama lui o lo chiami tu?','Quanto durano le conversazioni?','Sono utili o le trovi una formalita?'] },
+    { topic:2, q:'Come funzionano le review o i punti periodici con il RdZ?', probes:['Ogni quanto le fate?','Cosa guardate insieme?','Dopo la review cambia qualcosa concretamente?'] },
+    // TOPIC 3: Decisioni e autonomia
+    { topic:3, q:'Ci sono situazioni in cui il RdZ interviene su come gestisci il lavoro nella tua circoscrizione? Come ti sembra quando succede?', probes:['C\'e qualcosa che preferiresti gestire tu direttamente?','C\'e qualcosa dove invece vorresti che intervenisse di piu?','Come funziona quando non siete d\'accordo su come fare qualcosa?'] },
+    { topic:3, q:'Quando hai un problema serio nella tua circoscrizione, a chi ti rivolgi per primo?', probes:['Al RdZ o direttamente all\'Area Manager?','Perche?','Se vai dal RdZ, cosa succede dopo?'] },
+    // TOPIC 4: Quando funziona
+    { topic:4, q:'Raccontami una volta in cui il RdZ ti e stato veramente utile.', probes:['Cosa ha fatto di preciso?','Avresti potuto farcela senza di lui?','Succede spesso o e stata un\'eccezione?'] },
+    // TOPIC 5: Quando non funziona
+    { topic:5, q:'Raccontami una volta in cui il RdZ non ti e stato d\'aiuto, o e stato assente.', probes:['Cosa ti aspettavi che facesse?','Come hai risolto da solo?','Gliel\'hai detto?'] },
+    { topic:5, q:'C\'e qualcosa che il RdZ fa che secondo te e inutile o addirittura fastidioso?', probes:['Glielo hai mai detto?','Perche secondo te lo fa?','Cosa preferiresti facesse al suo posto?'] },
+    // TOPIC 6: Rapporto ideale
+    { topic:6, q:'Se potessi disegnare il RdZ perfetto per te, cosa farebbe?', probes:['Quanto spesso vi sentireste?','Su cosa ti aiuterebbe?','Cosa NON farebbe?'] },
+    // TOPIC 7: La tua circoscrizione
+    { topic:7, q:'Qual e la cosa piu complicata da gestire nella tua circoscrizione in questo periodo?', probes:['Il RdZ ti aiuta su questa sfida?','Cosa servirebbe per risolverla?','E un problema solo tuo o lo hanno anche altri mandatari?'] },
+    { topic:7, q:'Come va la capacita di incasso nella tua circoscrizione? Da cosa dipende?', probes:['Il RdZ guarda questi numeri con te?','Dipende da te o da fattori esterni?','Cosa ti aiuterebbe a migliorarla?'] },
+    { topic:7, q:'Come gestisci il carico di lavoro della reggenza insieme alla tua circoscrizione? Dove fai piu fatica?', probes:['Quanto tempo in piu ti porta la reggenza rispetto al lavoro ordinario?','Il RdZ ti supporta di piu da quando hai la reggenza?','Cosa ti servirebbe dal RdZ per gestire meglio la reggenza?'], condition:'reggenza_si' },
+  ]
+},
+am: {
+  label: 'Area Manager',
+  topics: ['Chi e il RdZ giusto','Cosa deve fare il RdZ','Confine di responsabilita','Come valuti i RdZ','Cosa funziona oggi','Cosa non funziona oggi','Strumenti e abilitazione','Obiettivi e risultati'],
+  questions: [
+    // TOPIC 0: Chi e il RdZ giusto
+    { topic:0, q:'Se dovessi assumere un nuovo RdZ domani, quali sono le 3 caratteristiche che cercheresti?', probes:['Contano piu le competenze tecniche o quelle relazionali?','L\'anzianita nel ruolo e importante?','Hai RdZ che hanno queste caratteristiche oggi?'] },
+    { topic:0, q:'Tra i tuoi RdZ, cosa distingue quelli che funzionano bene da quelli che fanno fatica?', probes:['E una questione di esperienza, metodo o attitudine?','Quelli bravi cosa fanno di diverso concretamente?','Come li aiuti quelli in difficolta?'] },
+    // TOPIC 1: Cosa deve fare il RdZ
+    { topic:1, q:'Secondo te, quali sono le 3-4 attivita fondamentali che il RdZ deve fare ogni settimana?', probes:['Sono le stesse che fanno oggi?','Manca qualcuna?','Ce n\'e qualcuna che fanno e non dovrebbero?'] },
+    { topic:1, q:'Il RdZ deve essere piu un gestore operativo dei mandatari o un coordinatore strategico della zona?', probes:['Oggi e piu una cosa o l\'altra?','Quale delle due crea piu valore?','Si puo fare entrambe?'] },
+    // TOPIC 2: Confine di responsabilita
+    { topic:2, q:'Quali decisioni deve poter prendere il RdZ da solo, senza passare da te?', probes:['Oggi le prende davvero?','Ce n\'e qualcuna che ti portano troppo spesso?','Dove metti il confine?'] },
+    { topic:2, q:'Quando un mandatario ha un problema di performance, chi se ne occupa: tu o il RdZ?', probes:['A che punto intervieni tu?','Il RdZ ha gli strumenti per gestirlo?','Dove finisce il RdZ e inizi tu?'] },
+    { topic:2, q:'Cosa fai tu oggi che un buon RdZ dovrebbe assorbire?', probes:['Quanto tempo ti libererebbe?','Perche non glielo deleghi gia?','Cosa servirebbe per farlo succedere?'] },
+    // TOPIC 3: Come valuti i RdZ
+    { topic:3, q:'Come capisci se un tuo RdZ sta facendo un buon lavoro?', probes:['Guardi dei numeri? Quali?','Chiedi ai mandatari?','Quanto conta l\'impressione diretta vs i dati?'] },
+    { topic:3, q:'Ogni quanto fai un punto strutturato con i tuoi RdZ? Come funziona?', probes:['Quanto dura? Cosa guardate?','E uno scambio aperto o segui una traccia?','Dopo il punto, cosa succede concretamente?'] },
+    // TOPIC 4: Cosa funziona oggi
+    { topic:4, q:'Raccontami un caso dove un tuo RdZ ha gestito bene una situazione critica.', probes:['Cosa ha fatto di specifico?','Come te ne sei accorto?','E replicabile con gli altri RdZ?'] },
+    // TOPIC 5: Cosa non funziona oggi
+    { topic:5, q:'Qual e il problema piu frequente che vedi nei tuoi RdZ oggi?', probes:['Succede con tutti o solo con alcuni?','E un problema di competenze, strumenti o chiarezza del ruolo?','Hai provato a correggerlo? Come?'] },
+    { topic:5, q:'C\'e una decisione che i tuoi RdZ ti portano troppo spesso e che dovrebbero gestire da soli?', probes:['Perche non la gestiscono?','Come reagiresti se la gestissero autonomamente?','Cosa gli manca per farlo?'] },
+    // TOPIC 6: Strumenti e abilitazione
+    { topic:6, q:'Di cosa avrebbero bisogno i tuoi RdZ per fare meglio il loro lavoro?', probes:['Strumenti, dati, formazione, chiarezza?','Qual e la priorita assoluta?','Chi deve fornirlo?'] },
+    { topic:6, q:'I RdZ hanno accesso ai dati giusti per gestire la zona? Cosa manca?', probes:['Usano le dashboard aziendali?','Si costruiscono strumenti propri?','I dati sono aggiornati?'] },
+    // TOPIC 7: Obiettivi e risultati
+    { topic:7, q:'Quali risultati concreti ti aspetti dal RdZ per raggiungere i tuoi obiettivi di area?', probes:['Come li misuri?','Il RdZ conosce questi obiettivi?','Quanto incide il RdZ sui risultati dell\'area?'] },
+    { topic:7, q:'Se i tuoi RdZ sparissero domani, cosa peggiorerebbe entro 90 giorni?', probes:['Cosa dovresti fare tu al loro posto?','Cosa rimarrebbe scoperto?','I mandatari se ne accorgerebbero?'] },
+  ]
+},
+dda: {
+  label: 'Direttore d\'Area',
+  topics: ['Visione del ruolo RdZ','Perimetri e governance','Re-skilling e competenze','Misurazione e rischi'],
+  questions: [
+    // TOPIC 0: Visione del ruolo RdZ
+    { topic:0, q:'Come definiresti il valore aggiunto del Responsabile di Zona nella catena di governance della rete?', probes:['Cosa perderemmo se domani i RdZ non ci fossero?','Questo valore aggiunto e percepito anche dai mandatari secondo te?'] },
+    { topic:0, q:'Il ruolo del RdZ sta cambiando rispetto a 2-3 anni fa? In che direzione?', probes:['Cosa ha innescato questo cambiamento?','I RdZ ne sono consapevoli secondo te?'] },
+    // TOPIC 1: Perimetri e governance
+    { topic:1, q:'Dove vedi oggi le principali sovrapposizioni o zone grigie tra RdZ, Area Manager e area?', probes:['Quali creano piu problemi operativi?','Come si potrebbero risolvere?'] },
+    { topic:1, q:'Come dovrebbero funzionare i flussi decisionali tra mandatario, RdZ, AM e Direttore d\'Area?', probes:['Dove si blocca la catena oggi?','C\'e qualcosa che arriva a te e non dovrebbe?'] },
+    // TOPIC 2: Re-skilling e competenze
+    { topic:2, q:'Quali competenze nuove dovrebbe sviluppare un RdZ per essere efficace nel modello che si sta costruendo?', probes:['Come si possono sviluppare queste competenze?','Quanto tempo ci vuole realisticamente?'] },
+    { topic:2, q:'Cosa manca oggi ai RdZ per poter fare bene il loro lavoro?', probes:['E un problema di strumenti, formazione o chiarezza?','Cosa prioritizzeresti?'] },
+    // TOPIC 3: Misurazione e rischi
+    { topic:3, q:'Come si dovrebbe misurare l\'efficacia di un RdZ? Cosa guarderesti tu?', probes:['Oggi li misuriamo in modo adeguato?','I numeri bastano o serve anche altro?'] },
+    { topic:3, q:'Qual e il rischio principale se non si definiscono bene ruoli e responsabilita a questo livello?', probes:['Lo vedi gia succedere oggi?','Quanto e urgente secondo te?'] },
+  ]
+}
+};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let S = {
+  profile: null, area: '', anz: '', extra: {},
+  qIdx: 0, answers: [], activeQuestions: [],
+  skipped: [], probeIdx: 0
+};
+
+function P() { return PROFILES[S.profile]; }
+
+// ═══════════════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════════════
+document.querySelectorAll('.profile-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.profile-btn').forEach(x => x.classList.remove('selected'));
+    b.classList.add('selected');
+    S.profile = b.dataset.profile;
+    document.getElementById('setupDetails').style.display = 'block';
+    document.getElementById('fldMandatari').style.display = S.profile==='rdz' ? 'block' : 'none';
+    document.getElementById('fldReggenze').style.display = S.profile==='rdz' ? 'block' : 'none';
+    document.getElementById('fldReggenzaMand').style.display = S.profile==='mandatario' ? 'block' : 'none';
+    checkReady();
+  });
+});
+['inArea','inAnz'].forEach(id => {
+  document.getElementById(id).addEventListener('change', checkReady);
+});
+function checkReady() {
+  const ok = S.profile && document.getElementById('inArea').value && document.getElementById('inAnz').value;
+  document.getElementById('btnStart').disabled = !ok;
+}
+document.getElementById('btnStart').addEventListener('click', () => {
+  S.area = document.getElementById('inArea').value;
+  S.anz = document.getElementById('inAnz').value;
+  S.extra.mandatari = document.getElementById('inMandatari').value || null;
+  S.extra.reggenze = document.getElementById('inReggenze').value || null;
+  S.extra.reggenza_mandatario = document.getElementById('inReggenzaMand').value || null;
+  startInterview();
+});
+
+// ═══════════════════════════════════════════════════════
+// INTERVIEW
+// ═══════════════════════════════════════════════════════
+function startInterview() {
+  // Build initial questions list, filtering conditionals
+  let questions = P().questions.filter(q => {
+    if (q.condition === 'seniority_gt_3' && S.anz === '<3 anni') return false;
+    if (q.condition === 'reggenza_si' && S.extra.reggenza_mandatario !== 'si') return false;
+    return true;
+  });
+  S.activeQuestions = questions;
+  S.answers = questions.map((q,i) => ({ idx:i, topic:q.topic, q:q.q, text:'', status:'pending' }));
+  S.qIdx = 0;
+  showSec('sec-interview');
+  setPhase(2);
+  renderQ();
+}
+
+function showSec(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function setPhase(n) {
+  for(let i=1;i<=3;i++){
+    const c = i<n?'done':i===n?'active':'';
+    document.getElementById('ps'+i).className='phase-step'+(c?' '+c:'');
+  }
+}
+
+function renderQ() {
+  const p = P();
+  const qs = S.activeQuestions;
+  const a = S.answers[S.qIdx];
+  const total = qs.length;
+  const done = S.answers.filter(x=>x.status==='done').length;
+
+  // Ring
+  const circ = 2*Math.PI*24;
+  document.getElementById('ringFg').setAttribute('stroke-dashoffset', circ - (done/total)*circ);
+  document.getElementById('ringCount').textContent = done+'/'+total;
+  document.getElementById('piTitle').textContent = 'Domanda '+(S.qIdx+1)+' di '+total;
+  document.getElementById('piSub').textContent = p.topics[a.topic];
+
+  // Chips
+  let chips = '';
+  p.topics.forEach((t,i) => {
+    const tqs = S.answers.filter(x=>x.topic===i);
+    const allDone = tqs.length>0 && tqs.every(x=>x.status==='done');
+    const someDone = tqs.some(x=>x.status==='done');
+    const isCurrent = a.topic===i;
+    let cls = isCurrent?'current':allDone?'done':someDone?'partial':'pending';
+    chips += `<div class="topic-chip ${cls}">${t}</div>`;
+  });
+  document.getElementById('topicChips').innerHTML = chips;
+
+  // Question
+  document.getElementById('qTopic').textContent = p.topics[a.topic];
+  document.getElementById('qNum').textContent = 'Domanda '+(S.qIdx+1)+' di '+total;
+  document.getElementById('qText').textContent = a.q;
+
+  // Answer
+  document.getElementById('answerBox').value = a.text;
+  document.getElementById('probeBox').classList.remove('visible');
+  S.probeIdx = 0;
+  updateWC();
+
+  // Back button: hide on first question, show otherwise
+  document.getElementById('btnBack').style.display = S.qIdx > 0 ? '' : 'none';
+
+  document.getElementById('answerBox').focus();
+}
+
+// Word count
+document.getElementById('answerBox').addEventListener('input', updateWC);
+function wc() { const t=document.getElementById('answerBox').value.trim(); return t?t.split(/\s+/).length:0; }
+function updateWC() {
+  const w = wc();
+  document.getElementById('wCount').textContent = w+' parole';
+  const d = document.getElementById('wDot');
+  d.className = 'word-dot '+(w<5?'low':w<15?'ok':'good');
+  document.getElementById('wHint').textContent = w<5?'Anche una frase breve va bene':w<15?'Buono! Un dettaglio in piu aiuta':' ';
+  document.getElementById('btnNext').disabled = w<2;
+}
+
+// Probe
+document.getElementById('btnProbe').addEventListener('click', () => {
+  const p = P();
+  const q = S.activeQuestions[S.qIdx];
+  const probe = q.probes[S.probeIdx % q.probes.length];
+  S.probeIdx++;
+  document.getElementById('probeText').textContent = probe;
+  document.getElementById('probeBox').classList.add('visible');
+});
+
+// Back
+document.getElementById('btnBack').addEventListener('click', () => {
+  // Save current answer text before going back
+  const a = S.answers[S.qIdx];
+  a.text = document.getElementById('answerBox').value.trim();
+  if(a.text && a.status === 'pending') a.status = 'done';
+  // Go to previous question
+  if(S.qIdx > 0) { S.qIdx--; renderQ(); }
+});
+
+// Skip
+document.getElementById('btnSkip').addEventListener('click', () => {
+  const a = S.answers[S.qIdx];
+  a.text = document.getElementById('answerBox').value.trim();
+  if(!a.text) a.status = 'pending';
+  S.skipped.push(S.qIdx);
+  goNext();
+});
+
+// Next
+document.getElementById('btnNext').addEventListener('click', () => {
+  const a = S.answers[S.qIdx];
+  a.text = document.getElementById('answerBox').value.trim();
+  a.status = 'done';
+  goNext();
+});
+
+function goNext() {
+  // Find next pending question
+  for(let i=S.qIdx+1; i<S.answers.length; i++) {
+    if(S.answers[i].status !== 'done') { S.qIdx=i; renderQ(); return; }
+  }
+  // Check skipped
+  while(S.skipped.length) {
+    const idx = S.skipped.shift();
+    if(S.answers[idx].status !== 'done') { S.qIdx=idx; renderQ(); return; }
+  }
+  // Check any remaining
+  for(let i=0; i<S.answers.length; i++) {
+    if(S.answers[i].status !== 'done') { S.qIdx=i; renderQ(); return; }
+  }
+  finish();
+}
+
+// ═══════════════════════════════════════════════════════
+// FINISH
+// ═══════════════════════════════════════════════════════
+function finish() {
+  showSec('sec-results');
+  setPhase(3);
+  renderSummary();
+}
+
+function renderSummary() {
+  const p = P();
+  let txt = `INTERVISTA PRE-WORK — DESIGN SPRINT RdZ SIAE\n`;
+  txt += `Profilo: ${p.label} | Area: ${S.area} | Anzianita: ${S.anz}\n`;
+  if(S.extra.mandatari) txt += `Mandatari coordinati: ${S.extra.mandatari}\n`;
+  if(S.extra.reggenze && S.extra.reggenze !== 'no') txt += `Circoscrizioni in reggenza: ${S.extra.reggenze}\n`;
+  if(S.extra.reggenza_mandatario === 'si') txt += `Titolare di reggenza: si\n`;
+  txt += `Data: ${new Date().toLocaleDateString('it-IT')}\n`;
+  txt += `${'='.repeat(55)}\n\n`;
+
+  p.topics.forEach((topic, ti) => {
+    const tqs = S.answers.filter(a => a.topic === ti);
+    const answered = tqs.filter(a => a.status === 'done' && a.text);
+    txt += `--- ${topic.toUpperCase()} ---\n\n`;
+    if(answered.length === 0) {
+      txt += `[Nessuna risposta raccolta]\n\n`;
+    } else {
+      answered.forEach(a => {
+        txt += `D: ${a.q}\nR: ${a.text}\n\n`;
+      });
+    }
+  });
+  document.getElementById('summaryOut').textContent = txt;
+}
+
+function buildJSON() {
+  const p = P();
+  return {
+    meta: { profile:S.profile, profile_label:p.label, area:S.area, anzianita:S.anz, extra:S.extra, date:new Date().toISOString() },
+    topics: p.topics.map((t,i) => ({
+      topic_name: t,
+      questions: S.answers.filter(a=>a.topic===i).map(a=>({ question:a.q, answer:a.text||null, status:a.status }))
+    })),
+    instructions: "Dati grezzi di un'intervista pre-work per il Design Sprint RdZ SIAE. Importa in Claude con la skill siae-prework-interviewer per generare la scheda di sintesi completa."
+  };
+}
+
+function dl(blob,name) {
+  const u=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=u; a.download=name; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(u);
+}
+
+document.getElementById('btnJSON').addEventListener('click', () => {
+  dl(new Blob([JSON.stringify(buildJSON(),null,2)],{type:'application/json'}),
+     `intervista_${S.profile}_${S.area.replace(/\s+/g,'_').toLowerCase()}_${Date.now()}.json`);
+});
+document.getElementById('btnTXT').addEventListener('click', () => {
+  dl(new Blob([document.getElementById('summaryOut').textContent],{type:'text/plain'}),
+     `intervista_${S.profile}_${S.area.replace(/\s+/g,'_').toLowerCase()}_${Date.now()}.txt`);
+});
+document.getElementById('btnCopy').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('summaryOut').textContent).then(()=>{
+    const b=document.getElementById('btnCopy'); b.textContent='Copiato!';
+    setTimeout(()=>{b.textContent='Copia tutto';},2000);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// INVIO FORMSUBMIT
+// ═══════════════════════════════════════════════════════
+document.getElementById('btnInvia').addEventListener('click', () => {
+  const p = P();
+  const summary = document.getElementById('summaryOut').textContent;
+
+  const btn = document.getElementById('btnInvia');
+  btn.disabled = true;
+  btn.textContent = 'Invio in corso…';
+
+  // Crea form dinamico con POST nativo (funziona da GitHub Pages)
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://formsubmit.co/matteo.antonazzo@siae.it';
+
+  const fields = {
+    '_subject'  : '[Intervista RdZ] ' + p.label + ' — ' + S.area,
+    '_captcha'  : 'false',
+    '_template' : 'table',
+    '_next'     : 'https://matsiae.github.io/sondaggio/grazie.html',
+    'Profilo'   : p.label,
+    'Area'      : S.area,
+    'Anzianita' : S.anz,
+    'Mandatari' : S.extra.mandatari || '—',
+    'Reggenze'  : S.extra.reggenze  || '—',
+    'Risposte'  : summary
+  };
+
+  Object.entries(fields).forEach(([name, value]) => {
+    const input = document.createElement('input');
+    input.type  = 'hidden';
+    input.name  = name;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+});
+</script>
+</body>
+</html>
