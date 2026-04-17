@@ -472,6 +472,9 @@ document.querySelectorAll('.profile-btn').forEach(b => {
     document.getElementById('fldMandatari').style.display = S.profile==='rdz' ? 'block' : 'none';
     document.getElementById('fldReggenze').style.display = S.profile==='rdz' ? 'block' : 'none';
     document.getElementById('fldReggenzaMand').style.display = S.profile==='mandatario' ? 'block' : 'none';
+    // Pulisce i campi extra quando si cambia profilo
+    if (S.profile !== 'rdz') { document.getElementById('inMandatari').value = ''; document.getElementById('inReggenze').value = ''; }
+    if (S.profile !== 'mandatario') { document.getElementById('inReggenzaMand').value = ''; }
     checkReady();
   });
 });
@@ -485,9 +488,9 @@ function checkReady() {
 document.getElementById('btnStart').addEventListener('click', () => {
   S.area = document.getElementById('inArea').value;
   S.anz = document.getElementById('inAnz').value;
-  S.extra.mandatari = document.getElementById('inMandatari').value || null;
-  S.extra.reggenze = document.getElementById('inReggenze').value || null;
-  S.extra.reggenza_mandatario = document.getElementById('inReggenzaMand').value || null;
+  S.extra.mandatari = (S.profile === 'rdz') ? (document.getElementById('inMandatari').value || null) : null;
+  S.extra.reggenze = (S.profile === 'rdz') ? (document.getElementById('inReggenze').value || null) : null;
+  S.extra.reggenza_mandatario = (S.profile === 'mandatario') ? (document.getElementById('inReggenzaMand').value || null) : null;
   startInterview();
 });
 
