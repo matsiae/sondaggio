@@ -710,34 +710,46 @@ document.getElementById('btnInvia').addEventListener('click', () => {
   btn.disabled = true;
   btn.textContent = 'Invio in corso…';
 
-  // Crea form dinamico con POST nativo (funziona da GitHub Pages)
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'https://formsubmit.co/matteo.antonazzo@siae.it';
+  // Costruisce payload FormData per invio AJAX
+  const data = new FormData();
+  data.append('_subject',  '[Intervista RdZ] ' + p.label + ' — ' + S.area);
+  data.append('_captcha',  'false');
+  data.append('_template', 'table');
+  data.append('Profilo',   p.label);
+  data.append('Area',      S.area);
+  data.append('Anzianita', S.anz);
+  data.append('Mandatari', S.extra.mandatari || '—');
+  data.append('Reggenze',  S.extra.reggenze  || '—');
 
-  const fields = {
-    '_subject'  : '[Intervista RdZ] ' + p.label + ' — ' + S.area,
-    '_captcha'  : 'false',
-    '_template' : 'table',
-    '_next'     : 'https://matsiae.github.io/sondaggio/grazie.html',
-    'Profilo'   : p.label,
-    'Area'      : S.area,
-    'Anzianita' : S.anz,
-    'Mandatari' : S.extra.mandatari || '—',
-    'Reggenze'  : S.extra.reggenze  || '—',
-    'Risposte'  : summary
-  };
-
-  Object.entries(fields).forEach(([name, value]) => {
-    const input = document.createElement('input');
-    input.type  = 'hidden';
-    input.name  = name;
-    input.value = value;
-    form.appendChild(input);
+  // Una sezione per ogni topic del profilo
+  p.topics.forEach((topic, ti) => {
+    const answered = S.answers.filter(a => a.topic === ti && a.status === 'done' && a.text);
+    const txt = answered.length === 0
+      ? '[Nessuna risposta]'
+      : answered.map(a => `D: ${a.q}\nR: ${a.text}`).join('\n\n');
+    data.append(`Sez_${ti + 1}`, `[${topic.toUpperCase()}]\n${txt}`);
   });
 
-  document.body.appendChild(form);
-  form.submit();
+  fetch('https://formsubmit.co/ajax/d2e48b2a5b0adca6f0e15fa0a0e3910e', {
+    method: 'POST',
+    body: data,
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+      window.location.href = 'https://matsiae.github.io/sondaggio/grazie.html';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Invia le risposte →';
+      alert('Errore durante l\'invio. Riprova.');
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = 'Invia le risposte →';
+    alert('Errore di connessione. Verifica la rete e riprova.');
+  });
 });
 </script>
 </body>
