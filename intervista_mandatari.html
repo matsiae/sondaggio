@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIAE — Intervista Mandatari</title>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-light: #132040;
+    --blue: #00B5FA;
+    --blue-dim: rgba(0,181,250,0.15);
+    --blue-glow: rgba(0,181,250,0.3);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.15);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.15);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --gray: #94a3b8;
+    --gray-light: #cbd5e1;
+    --white: #f1f5f9;
+    --text: #e2e8f0;
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(160deg, #050d1a 0%, var(--navy) 40%, #0d1f3c 100%);
+    color: var(--text); min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, var(--navy-light), #0d2240);
+    border-bottom: 1px solid rgba(0,181,250,0.2);
+    padding: 20px 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .header .logo {
+    width: 48px; height: 48px; background: var(--blue);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; color: var(--navy);
+  }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .header p { font-size: 13px; color: var(--gray); margin-top: 2px; }
+  .container { max-width: 780px; margin: 0 auto; padding: 28px 20px 100px; }
+  .phase-bar { display: flex; gap: 4px; margin-bottom: 28px; }
+  .phase-step { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,0.08); transition:background 0.4s; }
+  .phase-step.active { background: var(--blue); }
+  .phase-step.done { background: var(--green); }
+  .card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 18px; transition: all 0.3s;
+  }
+  .card:hover { border-color: rgba(0,181,250,0.15); }
+  .card h2 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .card .subtitle { font-size: 13px; color: var(--gray); margin-bottom: 18px; }
+  .field { margin-bottom: 14px; }
+  .field label { display:block; font-size:13px; font-weight:500; color:var(--gray-light); margin-bottom:5px; }
+  .field select, .field input {
+    width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    border-radius:8px; padding:10px 14px; color:var(--white); font-size:14px; outline:none;
+  }
+  .field select:focus, .field input:focus { border-color: var(--blue); }
+  .field select option { background: var(--navy); }
+
+  /* Progress ring */
+  .progress-ring-wrap { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .progress-ring { width:56px; height:56px; position:relative; }
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring .bg { stroke: rgba(255,255,255,0.06); }
+  .progress-ring .fg { stroke: var(--blue); transition: stroke-dashoffset 0.5s ease; }
+  .progress-ring .count {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:14px; font-weight:700; color:var(--white);
+  }
+  .progress-info .pi-title { font-size:14px; font-weight:600; color:var(--white); }
+  .progress-info .pi-sub { font-size:12px; color:var(--gray); margin-top:2px; }
+
+  /* Topic chips */
+  .topic-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px; }
+  .topic-chip {
+    font-size:11px; padding:4px 10px; border-radius:20px; font-weight:500;
+    border: 1px solid transparent;
+  }
+  .topic-chip.done { background:var(--green-dim); color:var(--green); border-color:rgba(34,197,94,0.2); }
+  .topic-chip.partial { background:var(--amber-dim); color:var(--amber); border-color:rgba(245,158,11,0.2); }
+  .topic-chip.pending { background:rgba(255,255,255,0.04); color:var(--gray); border-color:rgba(255,255,255,0.08); }
+  .topic-chip.current { background:var(--blue-dim); color:var(--blue); border-color:rgba(0,181,250,0.3); }
+
+  /* Question */
+  .q-area {
+    background: linear-gradient(135deg, rgba(0,181,250,0.06), rgba(0,181,250,0.02));
+    border: 1px solid rgba(0,181,250,0.15); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 14px;
+  }
+  .q-topic { font-size:11px; color:var(--blue); font-weight:600; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
+  .q-num { font-size:12px; color:var(--gray); margin-bottom:8px; }
+  .q-text { font-size:16px; font-weight:500; line-height:1.5; }
+
+  /* Probe */
+  .probe-box {
+    background: var(--amber-dim); border:1px solid rgba(245,158,11,0.2);
+    border-radius:8px; padding:12px 14px; margin-bottom:14px;
+    font-size:13px; color:var(--amber); display:none;
+  }
+  .probe-box.visible { display:block; }
+  .probe-box .probe-label { font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px; }
+
+  .answer-box {
+    width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px; padding:14px 16px; color:var(--white); font-size:14px;
+    font-family:inherit; line-height:1.6; min-height:100px; resize:vertical; outline:none;
+  }
+  .answer-box:focus { border-color: var(--blue); }
+  .answer-box::placeholder { color: rgba(255,255,255,0.2); }
+  .answer-meta { display:flex; justify-content:space-between; margin-top:6px; font-size:12px; color:var(--gray); }
+  .word-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+  .word-dot.low { background:var(--red); }
+  .word-dot.ok { background:var(--amber); }
+  .word-dot.good { background:var(--green); }
+
+  /* Checkbox group */
+  .checkbox-group { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+  .checkbox-item {
+    display:flex; align-items:center; gap:14px;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px; padding:14px 16px; cursor:pointer; transition:all 0.2s;
+    user-select:none;
+  }
+  .checkbox-item:hover { border-color:var(--blue); background:var(--blue-dim); }
+  .checkbox-item.checked { border-color:var(--blue); background:var(--blue-dim); box-shadow:0 0 12px rgba(0,181,250,0.1); }
+  .cb-box {
+    width:20px; height:20px; border:2px solid rgba(255,255,255,0.25);
+    border-radius:5px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s; font-size:12px;
+  }
+  .checkbox-item.checked .cb-box { background:var(--blue); border-color:var(--blue); color:var(--navy); font-weight:700; }
+  .cb-label { font-size:14px; color:var(--white); line-height:1.4; }
+
+  .btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:11px 20px; border-radius:10px; font-size:13px; font-weight:600;
+    cursor:pointer; border:none; transition:all 0.2s;
+  }
+  .btn-primary { background:var(--blue); color:var(--navy); }
+  .btn-primary:hover { filter:brightness(1.1); transform:translateY(-1px); }
+  .btn-primary:disabled { opacity:0.35; cursor:not-allowed; transform:none; }
+  .btn-secondary { background:rgba(255,255,255,0.08); color:var(--white); border:1px solid rgba(255,255,255,0.12); }
+  .btn-secondary:hover { background:rgba(255,255,255,0.12); }
+  .btn-ghost { background:transparent; color:var(--gray); padding:11px 12px; }
+  .btn-ghost:hover { color:var(--white); }
+  .btn-row { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+
+  .section { display:none; }
+  .section.active { display:block; }
+
+  .summary-block {
+    background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px; padding:18px; margin-bottom:14px;
+    white-space:pre-wrap; font-size:13px; line-height:1.7;
+    font-family:'SF Mono','Fira Code',monospace;
+    max-height:500px; overflow-y:auto;
+  }
+  .completion-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--green-dim); color:var(--green);
+    padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; margin-bottom:18px;
+  }
+  .intro-text { font-size:14px; line-height:1.7; color:var(--gray-light); margin-bottom:20px; }
+  .intro-text strong { color:var(--white); }
+
+  @media (max-width:600px) {
+    .header { padding:16px; }
+    .container { padding:18px 14px 80px; }
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn 0.35s ease-out; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">S</div>
+  <div>
+    <h1>Intervista Pre-work — Mandatari SIAE</h1>
+    <p>Raccolta evidenze per il workshop di definizione del ruolo Responsabile di Zona</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="phase-bar"><div class="phase-step" id="ps1"></div><div class="phase-step" id="ps2"></div><div class="phase-step" id="ps3"></div></div>
+
+  <!-- SETUP -->
+  <div class="section active" id="sec-setup">
+    <div class="card fade-in">
+      <h2>Benvenuto</h2>
+      <p class="intro-text">
+        Questa intervista fa parte della preparazione al <strong>Design Sprint per la definizione del ruolo di Responsabile di Zona SIAE</strong>.<br><br>
+        Ci vorranno circa <strong>20-25 minuti</strong>. Non ci sono risposte giuste o sbagliate: ci servono le tue esperienze concrete e il tuo punto di vista sul campo.<br><br>
+        Le risposte saranno anonimizzate e usate esclusivamente per preparare il workshop.
+      </p>
+    </div>
+    <div class="card fade-in">
+      <h2>Qualche dato su di te</h2>
+      <p class="subtitle">Serve per contestualizzare le risposte — tutto anonimo</p>
+      <div class="field">
+        <label>Area geografica</label>
+        <select id="inArea"><option value="">Seleziona...</option>
+          <option>Nord-Ovest</option><option>Nord-Est</option><option>Centro</option><option>Sud</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Anzianità nel ruolo attuale</label>
+        <select id="inAnz"><option value="">Seleziona...</option>
+          <option value="<3 anni">Meno di 3 anni</option>
+          <option value="3-6 anni">Da 3 a 6 anni</option>
+          <option value="6-10 anni">Da 6 a 10 anni</option>
+          <option value=">10 anni">Oltre 10 anni</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sei titolare di una reggenza in questo momento?</label>
+        <select id="inReggenzaMand"><option value="">Seleziona...</option>
+          <option value="no">No</option>
+          <option value="si">Sì</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnStart" disabled>Iniziamo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERVIEW -->
+  <div class="section" id="sec-interview">
+    <div class="progress-ring-wrap">
+      <div class="progress-ring">
+        <svg width="56" height="56"><circle class="bg" cx="28" cy="28" r="24" fill="none" stroke-width="4"/><circle class="fg" id="ringFg" cx="28" cy="28" r="24" fill="none" stroke-width="4" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round"/></svg>
+        <div class="count" id="ringCount">0/0</div>
+      </div>
+      <div class="progress-info">
+        <div class="pi-title" id="piTitle">Domanda 1</div>
+        <div class="pi-sub" id="piSub"></div>
+      </div>
+    </div>
+    <div class="topic-chips" id="topicChips"></div>
+
+    <div class="q-area fade-in" id="qArea">
+      <div class="q-topic" id="qTopic"></div>
+      <div class="q-num" id="qNum"></div>
+      <div class="q-text" id="qText"></div>
+    </div>
+
+    <div class="probe-box" id="probeBox">
+      <div class="probe-label">Suggerimento</div>
+      <div id="probeText"></div>
+    </div>
+
+    <!-- Text answer (default) -->
+    <textarea class="answer-box" id="answerBox" placeholder="Scrivi la tua risposta qui..."></textarea>
+    <div class="answer-meta" id="answerMeta">
+      <div><span class="word-dot" id="wDot"></span><span id="wCount">0 parole</span></div>
+      <span id="wHint"></span>
+    </div>
+
+    <!-- Checkbox answer (per domande a scelta) -->
+    <div class="checkbox-group" id="checkboxGroup" style="display:none"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="btnBack" style="display:none">&#8592; Indietro</button>
+      <button class="btn btn-primary" id="btnNext" disabled>Avanti &#8594;</button>
+      <button class="btn btn-secondary" id="btnProbe">&#128161; Aiutami a rispondere</button>
+      <button class="btn btn-ghost" id="btnSkip">Salta, ci torno dopo</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="section" id="sec-results">
+    <div class="completion-badge fade-in">&#10003; Intervista completata</div>
+    <div class="card fade-in">
+      <h2>Grazie!</h2>
+      <p class="intro-text">Le tue risposte sono pronte per essere esportate. Il facilitatore le userà per preparare il workshop.<br><br>Clicca su uno dei pulsanti sotto per salvare le risposte.</p>
+    </div>
+    <div class="card fade-in">
+      <h2>Riepilogo risposte</h2>
+      <div class="summary-block" id="summaryOut"></div>
+    </div>
+    <div class="card fade-in" style="border-color:rgba(0,181,250,0.3); background:rgba(0,181,250,0.04)">
+      <h2>&#128228; Invia al facilitatore</h2>
+      <p class="subtitle" style="margin-bottom:16px">Clicca per inviare le risposte direttamente. Verrai reindirizzato alla pagina di conferma.</p>
+      <button class="btn btn-primary" id="btnInvia" style="font-size:15px; padding:14px 28px; width:100%">Invia le risposte &#8594;</button>
+    </div>
+    <div class="card fade-in">
+      <h2>Esporta in locale</h2>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btnJSON">Esporta JSON</button>
+        <button class="btn btn-secondary" id="btnTXT">Esporta testo</button>
+        <button class="btn btn-secondary" id="btnCopy">Copia tutto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// QUESTION BANK
+// ═══════════════════════════════════════════════════════
+const PROFILES = {
+mandatario: {
+  label: 'Mandatario',
+  topics: ['Come vedi il RdZ','Cosa ti serve dal RdZ','Interazioni concrete','Decisioni e autonomia','Quando funziona','Quando non funziona','Il rapporto ideale','La tua circoscrizione','Tavolo di lavoro','Survey di clima'],
+  questions: [
+    // TOPIC 0: Come vedi il RdZ
+    { topic:0, q:'Se dovessi spiegare a un collega nuovo cosa fa il tuo Responsabile di Zona, cosa diresti?', probes:['Ti capita di chiamarlo tu quando hai bisogno, o è lui che si fa vivo?','Cosa fa che ti aiuta davvero?','Cosa fa che non ti serve?'] },
+    { topic:0, q:'Secondo te, il RdZ è più un supporto per te o un controllore? Perché?', probes:['È sempre stato così o è cambiato?','Come ti fa sentire questa cosa?','Cosa preferirebbe secondo te?'] },
+    // TOPIC 1: Cosa ti serve
+    { topic:1, q:'Nell\'ultimo mese, per cosa hai avuto bisogno del tuo RdZ?', probes:['Ti ha aiutato? Come?','Se non c\'era il RdZ, come avresti fatto?','Quanto tempo ci ha messo a risponderti?'] },
+    { topic:1, q:'C\'è qualcosa che oggi fai da solo e che vorresti ti aiutasse il RdZ?', probes:['Glielo hai mai chiesto?','Perché pensi che dovrebbe farlo lui?','Quanto tempo ti libererebbe?'] },
+    // TOPIC 2: Interazioni concrete
+    { topic:2, q:'Quanto spesso senti il tuo RdZ? E di cosa parlate di solito?', probes:['Ti chiama lui o lo chiami tu?','Quanto durano le conversazioni?','Sono utili o le trovi una formalità?'] },
+    { topic:2, q:'Come funzionano le review o i punti periodici con il RdZ?', probes:['Ogni quanto le fate?','Cosa guardate insieme?','Dopo la review cambia qualcosa concretamente?'] },
+    // TOPIC 3: Decisioni e autonomia
+    { topic:3, q:'Ci sono situazioni in cui il RdZ interviene su come gestisci il lavoro nella tua circoscrizione? Come ti sembra quando succede?', probes:['C\'è qualcosa che preferiresti gestire tu direttamente?','C\'è qualcosa dove invece vorresti che intervenisse di più?','Come funziona quando non siete d\'accordo su come fare qualcosa?'] },
+    { topic:3, q:'Quando hai un problema serio nella tua circoscrizione, a chi ti rivolgi per primo?', probes:['Al RdZ o direttamente all\'Area Manager?','Perché?','Se vai dal RdZ, cosa succede dopo?'] },
+    // TOPIC 4: Quando funziona
+    { topic:4, q:'Raccontami una volta in cui il RdZ ti è stato veramente utile.', probes:['Cosa ha fatto di preciso?','Avresti potuto farcela senza di lui?','Succede spesso o è stata un\'eccezione?'] },
+    // TOPIC 5: Quando non funziona
+    { topic:5, q:'Raccontami una volta in cui il RdZ non ti è stato d\'aiuto, o è stato assente.', probes:['Cosa ti aspettavi che facesse?','Come hai risolto da solo?','Gliel\'hai detto?'] },
+    { topic:5, q:'C\'è qualcosa che il RdZ fa che secondo te è inutile o addirittura fastidioso?', probes:['Glielo hai mai detto?','Perché secondo te lo fa?','Cosa preferiresti facesse al suo posto?'] },
+    // TOPIC 6: Rapporto ideale
+    { topic:6, q:'Se potessi disegnare il RdZ perfetto per te, cosa farebbe?', probes:['Quanto spesso vi sentireste?','Su cosa ti aiuterebbe?','Cosa NON farebbe?'] },
+    // TOPIC 7: La tua circoscrizione
+    { topic:7, q:'Qual è la cosa più complicata da gestire nella tua circoscrizione in questo periodo?', probes:['Il RdZ ti aiuta su questa sfida?','Cosa servirebbe per risolverla?','È un problema solo tuo o lo hanno anche altri mandatari?'] },
+    { topic:7, q:'Come va la capacità di incasso nella tua circoscrizione? Da cosa dipende?', probes:['Il RdZ guarda questi numeri con te?','Dipende da te o da fattori esterni?','Cosa ti aiuterebbe a migliorarla?'] },
+    { topic:7, q:'Come gestisci il carico di lavoro della reggenza insieme alla tua circoscrizione? Dove fai più fatica?', probes:['Quanto tempo in più ti porta la reggenza rispetto al lavoro ordinario?','Il RdZ ti supporta di più da quando hai la reggenza?','Cosa ti servirebbe dal RdZ per gestire meglio la reggenza?'], condition:'reggenza_si' },
+    // TOPIC 8: Tavolo di lavoro
+    { topic:8, type:'checkbox', q:'A quale tavolo di lavoro ti piacerebbe partecipare?', probes:[],
+      options:[
+        'Evoluzione ruolo & forme giuridiche',
+        'Welfare, sicurezza & diritti collettivi',
+        'Sostenibilità economica, premialità & fiscalità',
+        'Organizzazione territoriale & dinamiche di rete',
+        'Modalità di lavoro, formazione & strumenti'
+      ]
+    },
+    // TOPIC 9: Survey di clima
+    { topic:9, q:'Come descriveresti il clima di collaborazione con il tuo Responsabile di Zona? Ti senti ascoltato e supportato?', probes:['C\'è stato un momento recente in cui ti sei sentito particolarmente supportato o, al contrario, lasciato solo?','Cosa cambierebbe il clima tra voi?'] },
+    { topic:9, q:'Ti senti adeguatamente riconosciuto per il lavoro che svolgi nella tua circoscrizione, sia dal RdZ che dall\'organizzazione SIAE?', probes:['Il riconoscimento è più economico, professionale o relazionale?','C\'è qualcosa di specifico che ti farebbe sentire più valorizzato?'] },
+    { topic:9, q:'Come valuti la chiarezza delle aspettative e degli obiettivi che ti vengono comunicati? Sai sempre cosa ci si aspetta da te?', probes:['Ci sono aree dove senti ambiguità o mancanza di indicazioni?','Come preferiresti ricevere questi feedback e obiettivi?'] },
+    { topic:9, q:'Quanto ti senti parte di una rete di mandatari? Condividi esperienze, difficoltà o best practice con i colleghi?', probes:['Hai momenti di confronto strutturato con altri mandatari?','Cosa ti aiuterebbe a sentirti più connesso alla rete?'] },
+    { topic:9, q:'Guardando al futuro del tuo ruolo in SIAE, come ti senti rispetto alle prospettive e ai cambiamenti in corso?', probes:['C\'è qualcosa che ti preoccupa o che invece ti entusiasma?','Cosa vorresti che SIAE facesse diversamente per supportare la tua crescita?'] },
+  ]
+}
+};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let S = {
+  profile: 'mandatario', area: '', anz: '', extra: {},
+  qIdx: 0, answers: [], activeQuestions: [],
+  skipped: [], probeIdx: 0
+};
+
+function P() { return PROFILES[S.profile]; }
+
+// ═══════════════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════════════
+['inArea','inAnz','inReggenzaMand'].forEach(id => {
+  document.getElementById(id).addEventListener('change', checkReady);
+});
+function checkReady() {
+  const ok = document.getElementById('inArea').value && document.getElementById('inAnz').value;
+  document.getElementById('btnStart').disabled = !ok;
+}
+document.getElementById('btnStart').addEventListener('click', () => {
+  S.area = document.getElementById('inArea').value;
+  S.anz  = document.getElementById('inAnz').value;
+  S.extra.reggenza_mandatario = document.getElementById('inReggenzaMand').value || null;
+  startInterview();
+});
+
+// ═══════════════════════════════════════════════════════
+// INTERVIEW
+// ═══════════════════════════════════════════════════════
+function startInterview() {
+  let questions = P().questions.filter(q => {
+    if (q.condition === 'reggenza_si' && S.extra.reggenza_mandatario !== 'si') return false;
+    return true;
+  });
+  S.activeQuestions = questions;
+  S.answers = questions.map((q,i) => ({ idx:i, topic:q.topic, q:q.q, text:'', status:'pending', type: q.type || 'text', options: q.options || null, selected: [] }));
+  S.qIdx = 0;
+  showSec('sec-interview');
+  setPhase(2);
+  renderQ();
+}
+
+function showSec(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function setPhase(n) {
+  for(let i=1;i<=3;i++){
+    const c = i<n?'done':i===n?'active':'';
+    document.getElementById('ps'+i).className='phase-step'+(c?' '+c:'');
+  }
+}
+
+function renderQ() {
+  const p = P();
+  const qs = S.activeQuestions;
+  const a = S.answers[S.qIdx];
+  const total = qs.length;
+  const done = S.answers.filter(x=>x.status==='done').length;
+
+  // Ring
+  const circ = 2*Math.PI*24;
+  document.getElementById('ringFg').setAttribute('stroke-dashoffset', circ - (done/total)*circ);
+  document.getElementById('ringCount').textContent = done+'/'+total;
+  document.getElementById('piTitle').textContent = 'Domanda '+(S.qIdx+1)+' di '+total;
+  document.getElementById('piSub').textContent = p.topics[a.topic];
+
+  // Chips
+  let chips = '';
+  p.topics.forEach((t,i) => {
+    const tqs = S.answers.filter(x=>x.topic===i);
+    const allDone = tqs.length>0 && tqs.every(x=>x.status==='done');
+    const someDone = tqs.some(x=>x.status==='done');
+    const isCurrent = a.topic===i;
+    let cls = isCurrent?'current':allDone?'done':someDone?'partial':'pending';
+    chips += `<div class="topic-chip ${cls}">${t}</div>`;
+  });
+  document.getElementById('topicChips').innerHTML = chips;
+
+  // Question
+  document.getElementById('qTopic').textContent = p.topics[a.topic];
+  document.getElementById('qNum').textContent = 'Domanda '+(S.qIdx+1)+' di '+total;
+  document.getElementById('qText').textContent = a.q;
+
+  // Probe
+  document.getElementById('probeBox').classList.remove('visible');
+  S.probeIdx = 0;
+  const q = qs[S.qIdx];
+  document.getElementById('btnProbe').style.display = (q.probes && q.probes.length > 0) ? '' : 'none';
+  document.getElementById('btnSkip').style.display = a.type === 'checkbox' ? 'none' : '';
+
+  // Toggle textarea vs checkbox
+  if (a.type === 'checkbox') {
+    document.getElementById('answerBox').style.display = 'none';
+    document.getElementById('answerMeta').style.display = 'none';
+    const cg = document.getElementById('checkboxGroup');
+    cg.style.display = 'flex';
+    cg.innerHTML = '';
+    (a.options || []).forEach((opt, oi) => {
+      const isChecked = a.selected.includes(opt);
+      const item = document.createElement('div');
+      item.className = 'checkbox-item' + (isChecked ? ' checked' : '');
+      item.innerHTML = `<div class="cb-box">${isChecked ? '✓' : ''}</div><div class="cb-label">${opt}</div>`;
+      item.addEventListener('click', () => {
+        const idx = a.selected.indexOf(opt);
+        if (idx === -1) { a.selected.push(opt); } else { a.selected.splice(idx, 1); }
+        updateCheckboxUI();
+      });
+      cg.appendChild(item);
+    });
+    updateCheckboxUI();
+  } else {
+    document.getElementById('answerBox').style.display = '';
+    document.getElementById('answerMeta').style.display = '';
+    document.getElementById('checkboxGroup').style.display = 'none';
+    document.getElementById('answerBox').value = a.text;
+    updateWC();
+  }
+
+  document.getElementById('btnBack').style.display = S.qIdx > 0 ? '' : 'none';
+  if (a.type !== 'checkbox') document.getElementById('answerBox').focus();
+}
+
+function updateCheckboxUI() {
+  const a = S.answers[S.qIdx];
+  const items = document.getElementById('checkboxGroup').querySelectorAll('.checkbox-item');
+  items.forEach((item, oi) => {
+    const opt = a.options[oi];
+    const checked = a.selected.includes(opt);
+    item.className = 'checkbox-item' + (checked ? ' checked' : '');
+    item.querySelector('.cb-box').textContent = checked ? '✓' : '';
+  });
+  document.getElementById('btnNext').disabled = a.selected.length === 0;
+}
+
+// Word count
+document.getElementById('answerBox').addEventListener('input', updateWC);
+function wc() { const t=document.getElementById('answerBox').value.trim(); return t?t.split(/\s+/).length:0; }
+function updateWC() {
+  const w = wc();
+  document.getElementById('wCount').textContent = w+' parole';
+  const d = document.getElementById('wDot');
+  d.className = 'word-dot '+(w<5?'low':w<15?'ok':'good');
+  document.getElementById('wHint').textContent = w<5?'Anche una frase breve va bene':w<15?'Buono! Un dettaglio in più aiuta':' ';
+  document.getElementById('btnNext').disabled = w<2;
+}
+
+// Probe
+document.getElementById('btnProbe').addEventListener('click', () => {
+  const q = S.activeQuestions[S.qIdx];
+  if (!q.probes || q.probes.length === 0) return;
+  const probe = q.probes[S.probeIdx % q.probes.length];
+  S.probeIdx++;
+  document.getElementById('probeText').textContent = probe;
+  document.getElementById('probeBox').classList.add('visible');
+});
+
+// Back
+document.getElementById('btnBack').addEventListener('click', () => {
+  saveCurrentAnswer();
+  if(S.qIdx > 0) { S.qIdx--; renderQ(); }
+});
+
+// Skip
+document.getElementById('btnSkip').addEventListener('click', () => {
+  const a = S.answers[S.qIdx];
+  a.text = document.getElementById('answerBox').value.trim();
+  if(!a.text) a.status = 'pending';
+  S.skipped.push(S.qIdx);
+  goNext();
+});
+
+// Next
+document.getElementById('btnNext').addEventListener('click', () => {
+  saveCurrentAnswer();
+  S.answers[S.qIdx].status = 'done';
+  goNext();
+});
+
+function saveCurrentAnswer() {
+  const a = S.answers[S.qIdx];
+  if (a.type === 'checkbox') {
+    a.text = a.selected.join(', ');
+  } else {
+    a.text = document.getElementById('answerBox').value.trim();
+  }
+}
+
+function goNext() {
+  for(let i=S.qIdx+1; i<S.answers.length; i++) {
+    if(S.answers[i].status !== 'done') { S.qIdx=i; renderQ(); return; }
+  }
+  while(S.skipped.length) {
+    const idx = S.skipped.shift();
+    if(S.answers[idx].status !== 'done') { S.qIdx=idx; renderQ(); return; }
+  }
+  for(let i=0; i<S.answers.length; i++) {
+    if(S.answers[i].status !== 'done') { S.qIdx=i; renderQ(); return; }
+  }
+  finish();
+}
+
+// ═══════════════════════════════════════════════════════
+// FINISH
+// ═══════════════════════════════════════════════════════
+function finish() {
+  showSec('sec-results');
+  setPhase(3);
+  renderSummary();
+}
+
+function renderSummary() {
+  const p = P();
+  let txt = `INTERVISTA PRE-WORK — MANDATARI SIAE\n`;
+  txt += `Area: ${S.area} | Anzianità: ${S.anz}\n`;
+  if(S.extra.reggenza_mandatario === 'si') txt += `Titolare di reggenza: sì\n`;
+  txt += `Data: ${new Date().toLocaleDateString('it-IT')}\n`;
+  txt += `${'='.repeat(55)}\n\n`;
+
+  p.topics.forEach((topic, ti) => {
+    const tqs = S.answers.filter(a => a.topic === ti);
+    const answered = tqs.filter(a => a.status === 'done' && a.text);
+    txt += `--- ${topic.toUpperCase()} ---\n\n`;
+    if(answered.length === 0) {
+      txt += `[Nessuna risposta raccolta]\n\n`;
+    } else {
+      answered.forEach(a => {
+        if (a.type === 'checkbox') {
+          txt += `D: ${a.q}\nR: ${a.text}\n\n`;
+        } else {
+          txt += `D: ${a.q}\nR: ${a.text}\n\n`;
+        }
+      });
+    }
+  });
+  document.getElementById('summaryOut').textContent = txt;
+}
+
+function buildJSON() {
+  const p = P();
+  return {
+    meta: { profile:'mandatario', profile_label:'Mandatario', area:S.area, anzianita:S.anz, extra:S.extra, date:new Date().toISOString() },
+    topics: p.topics.map((t,i) => ({
+      topic_name: t,
+      questions: S.answers.filter(a=>a.topic===i).map(a=>({ question:a.q, answer:a.text||null, status:a.status }))
+    })),
+    instructions: "Dati grezzi di un'intervista pre-work per il Design Sprint RdZ SIAE."
+  };
+}
+
+function dl(blob,name) {
+  const u=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=u; a.download=name; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(u);
+}
+
+document.getElementById('btnJSON').addEventListener('click', () => {
+  dl(new Blob([JSON.stringify(buildJSON(),null,2)],{type:'application/json'}),
+     `intervista_mandatario_${S.area.replace(/\s+/g,'_').toLowerCase()}_${Date.now()}.json`);
+});
+document.getElementById('btnTXT').addEventListener('click', () => {
+  dl(new Blob([document.getElementById('summaryOut').textContent],{type:'text/plain'}),
+     `intervista_mandatario_${S.area.replace(/\s+/g,'_').toLowerCase()}_${Date.now()}.txt`);
+});
+document.getElementById('btnCopy').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('summaryOut').textContent).then(()=>{
+    const b=document.getElementById('btnCopy'); b.textContent='Copiato!';
+    setTimeout(()=>{b.textContent='Copia tutto';},2000);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// INVIO FORMSUBMIT
+// ═══════════════════════════════════════════════════════
+document.getElementById('btnInvia').addEventListener('click', () => {
+  const p = P();
+  const btn = document.getElementById('btnInvia');
+  btn.disabled = true;
+  btn.textContent = 'Invio in corso…';
+
+  const data = new FormData();
+  data.append('_subject',  '[Intervista Mandatari] Mandatario — ' + S.area);
+  data.append('_captcha',  'false');
+  data.append('_template', 'table');
+  data.append('Profilo',   'Mandatario');
+  data.append('Area',      S.area);
+  data.append('Anzianita', S.anz);
+  data.append('Reggenza',  S.extra.reggenza_mandatario === 'si' ? 'Sì' : 'No');
+
+  p.topics.forEach((topic, ti) => {
+    const answered = S.answers.filter(a => a.topic === ti && a.status === 'done' && a.text);
+    const txt = answered.length === 0
+      ? '[Nessuna risposta]'
+      : answered.map(a => `D: ${a.q}\nR: ${a.text}`).join('\n\n');
+    data.append(`Sez_${ti + 1}`, `[${topic.toUpperCase()}]\n${txt}`);
+  });
+
+  fetch('https://formsubmit.co/ajax/matteo.antonazzo@siae.it', {
+    method: 'POST',
+    body: data,
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+      window.location.href = 'https://matsiae.github.io/sondaggio/grazie.html';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Invia le risposte →';
+      alert('Errore durante l\'invio. Riprova.');
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = 'Invia le risposte →';
+    alert('Errore di connessione. Verifica la rete e riprova.');
+  });
+});
+</script>
+</body>
+</html>
