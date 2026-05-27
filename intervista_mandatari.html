@@ -137,6 +137,20 @@
   .checkbox-item.checked .cb-box { background:var(--blue); border-color:var(--blue); color:var(--navy); font-weight:700; }
   .cb-label { font-size:14px; color:var(--white); line-height:1.4; }
 
+  /* Scale 1-5 */
+  .scale-anchors { display:flex; justify-content:space-between; font-size:11px; color:var(--gray); margin-bottom:10px; padding:0 4px; }
+  .scale-group { display:flex; gap:8px; margin-bottom:14px; flex-wrap:nowrap; }
+  .scale-item {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px; padding:14px 6px; cursor:pointer; transition:all 0.2s; user-select:none;
+  }
+  .scale-item:hover { border-color:var(--blue); background:var(--blue-dim); }
+  .scale-item.selected { border-color:var(--blue); background:var(--blue-dim); box-shadow:0 0 12px rgba(0,181,250,0.1); }
+  .scale-num { font-size:22px; font-weight:700; color:var(--white); }
+  .scale-item.selected .scale-num { color:var(--blue); }
+  .scale-label { font-size:10px; color:var(--gray); text-align:center; line-height:1.3; }
+
   .btn {
     display:inline-flex; align-items:center; gap:6px;
     padding:11px 20px; border-radius:10px; font-size:13px; font-weight:600;
@@ -266,6 +280,12 @@
     <!-- Checkbox answer (per domande a scelta) -->
     <div class="checkbox-group" id="checkboxGroup" style="display:none"></div>
 
+    <!-- Scale 1-5 answer -->
+    <div id="scaleWrap" style="display:none">
+      <div class="scale-anchors"><span>1 — Per niente d'accordo</span><span>5 — Completamente d'accordo</span></div>
+      <div class="scale-group" id="scaleGroup"></div>
+    </div>
+
     <div class="btn-row">
       <button class="btn btn-ghost" id="btnBack" style="display:none">&#8592; Indietro</button>
       <button class="btn btn-primary" id="btnNext" disabled>Avanti &#8594;</button>
@@ -285,11 +305,6 @@
       <h2>Riepilogo risposte</h2>
       <div class="summary-block" id="summaryOut"></div>
     </div>
-    <div class="card fade-in" style="border-color:rgba(0,181,250,0.3); background:rgba(0,181,250,0.04)">
-      <h2>&#128228; Invia al facilitatore</h2>
-      <p class="subtitle" style="margin-bottom:16px">Clicca per inviare le risposte direttamente. Verrai reindirizzato alla pagina di conferma.</p>
-      <button class="btn btn-primary" id="btnInvia" style="font-size:15px; padding:14px 28px; width:100%">Invia le risposte &#8594;</button>
-    </div>
     <div class="card fade-in">
       <h2>Esporta in locale</h2>
       <div class="btn-row">
@@ -297,6 +312,11 @@
         <button class="btn btn-secondary" id="btnTXT">Esporta testo</button>
         <button class="btn btn-secondary" id="btnCopy">Copia tutto</button>
       </div>
+    </div>
+    <div class="card fade-in" style="border-color:rgba(0,181,250,0.3); background:rgba(0,181,250,0.04)">
+      <h2>&#128228; Invia al facilitatore</h2>
+      <p class="subtitle" style="margin-bottom:16px">Clicca per inviare le risposte direttamente. Verrai reindirizzato alla pagina di conferma.</p>
+      <button class="btn btn-primary" id="btnInvia" style="font-size:15px; padding:14px 28px; width:100%">Invia le risposte &#8594;</button>
     </div>
   </div>
 </div>
@@ -343,12 +363,12 @@ mandatario: {
         'Modalità di lavoro, formazione & strumenti'
       ]
     },
-    // TOPIC 9: Survey di clima
-    { topic:9, q:'Come descriveresti il clima di collaborazione con il tuo Responsabile di Zona? Ti senti ascoltato e supportato?', probes:['C\'è stato un momento recente in cui ti sei sentito particolarmente supportato o, al contrario, lasciato solo?','Cosa cambierebbe il clima tra voi?'] },
-    { topic:9, q:'Ti senti adeguatamente riconosciuto per il lavoro che svolgi nella tua circoscrizione, sia dal RdZ che dall\'organizzazione SIAE?', probes:['Il riconoscimento è più economico, professionale o relazionale?','C\'è qualcosa di specifico che ti farebbe sentire più valorizzato?'] },
-    { topic:9, q:'Come valuti la chiarezza delle aspettative e degli obiettivi che ti vengono comunicati? Sai sempre cosa ci si aspetta da te?', probes:['Ci sono aree dove senti ambiguità o mancanza di indicazioni?','Come preferiresti ricevere questi feedback e obiettivi?'] },
-    { topic:9, q:'Quanto ti senti parte di una rete di mandatari? Condividi esperienze, difficoltà o best practice con i colleghi?', probes:['Hai momenti di confronto strutturato con altri mandatari?','Cosa ti aiuterebbe a sentirti più connesso alla rete?'] },
-    { topic:9, q:'Guardando al futuro del tuo ruolo in SIAE, come ti senti rispetto alle prospettive e ai cambiamenti in corso?', probes:['C\'è qualcosa che ti preoccupa o che invece ti entusiasma?','Cosa vorresti che SIAE facesse diversamente per supportare la tua crescita?'] },
+    // TOPIC 9: Survey di clima (scala 1-5)
+    { topic:9, type:'scale', q:'Ho fiducia nei confronti del vertice aziendale e della sua prima linea (capi divisione)', probes:[] },
+    { topic:9, type:'scale', q:'In presenza di cambiamenti, la comunicazione aziendale è gestita adeguatamente', probes:[] },
+    { topic:9, type:'scale', q:'Dispongo delle risorse necessarie (mezzi e strumenti) per svolgere bene il mio lavoro', probes:[] },
+    { topic:9, type:'scale', q:'Sono fiero/a di lavorare per SIAE', probes:[] },
+    { topic:9, type:'scale', q:'Se avessi la possibilità di scegliere, lavorerei per SIAE ancora per molto tempo', probes:[] },
   ]
 }
 };
@@ -390,7 +410,7 @@ function startInterview() {
     return true;
   });
   S.activeQuestions = questions;
-  S.answers = questions.map((q,i) => ({ idx:i, topic:q.topic, q:q.q, text:'', status:'pending', type: q.type || 'text', options: q.options || null, selected: [] }));
+  S.answers = questions.map((q,i) => ({ idx:i, topic:q.topic, q:q.q, text:'', status:'pending', type: q.type || 'text', options: q.options || null, selected: [], scaleValue: null }));
   S.qIdx = 0;
   showSec('sec-interview');
   setPhase(2);
@@ -444,14 +464,15 @@ function renderQ() {
   S.probeIdx = 0;
   const q = qs[S.qIdx];
   document.getElementById('btnProbe').style.display = (q.probes && q.probes.length > 0) ? '' : 'none';
-  document.getElementById('btnSkip').style.display = a.type === 'checkbox' ? 'none' : '';
+  document.getElementById('btnSkip').style.display = (a.type === 'checkbox' || a.type === 'scale') ? 'none' : '';
 
-  // Toggle textarea vs checkbox
+  // Toggle textarea vs checkbox vs scale
   if (a.type === 'checkbox') {
     document.getElementById('answerBox').style.display = 'none';
     document.getElementById('answerMeta').style.display = 'none';
+    document.getElementById('checkboxGroup').style.display = 'flex';
+    document.getElementById('scaleWrap').style.display = 'none';
     const cg = document.getElementById('checkboxGroup');
-    cg.style.display = 'flex';
     cg.innerHTML = '';
     (a.options || []).forEach((opt, oi) => {
       const isChecked = a.selected.includes(opt);
@@ -466,10 +487,27 @@ function renderQ() {
       cg.appendChild(item);
     });
     updateCheckboxUI();
+  } else if (a.type === 'scale') {
+    document.getElementById('answerBox').style.display = 'none';
+    document.getElementById('answerMeta').style.display = 'none';
+    document.getElementById('checkboxGroup').style.display = 'none';
+    document.getElementById('scaleWrap').style.display = 'block';
+    const sg = document.getElementById('scaleGroup');
+    sg.innerHTML = '';
+    const scaleLabels = ['Per niente\nd\'accordo','Poco\nd\'accordo','Abbastanza\nd\'accordo','D\'accordo','Completamente\nd\'accordo'];
+    for (let v = 1; v <= 5; v++) {
+      const item = document.createElement('div');
+      item.className = 'scale-item' + (a.scaleValue === v ? ' selected' : '');
+      item.innerHTML = `<div class="scale-num">${v}</div><div class="scale-label">${scaleLabels[v-1]}</div>`;
+      item.addEventListener('click', () => { a.scaleValue = v; updateScaleUI(); });
+      sg.appendChild(item);
+    }
+    updateScaleUI();
   } else {
     document.getElementById('answerBox').style.display = '';
     document.getElementById('answerMeta').style.display = '';
     document.getElementById('checkboxGroup').style.display = 'none';
+    document.getElementById('scaleWrap').style.display = 'none';
     document.getElementById('answerBox').value = a.text;
     updateWC();
   }
@@ -488,6 +526,15 @@ function updateCheckboxUI() {
     item.querySelector('.cb-box').textContent = checked ? '✓' : '';
   });
   document.getElementById('btnNext').disabled = a.selected.length === 0;
+}
+
+function updateScaleUI() {
+  const a = S.answers[S.qIdx];
+  const items = document.getElementById('scaleGroup').querySelectorAll('.scale-item');
+  items.forEach((item, i) => {
+    item.className = 'scale-item' + (a.scaleValue === i + 1 ? ' selected' : '');
+  });
+  document.getElementById('btnNext').disabled = !a.scaleValue;
 }
 
 // Word count
@@ -538,6 +585,8 @@ function saveCurrentAnswer() {
   const a = S.answers[S.qIdx];
   if (a.type === 'checkbox') {
     a.text = a.selected.join(', ');
+  } else if (a.type === 'scale') {
+    a.text = a.scaleValue ? `${a.scaleValue}/5` : '';
   } else {
     a.text = document.getElementById('answerBox').value.trim();
   }
